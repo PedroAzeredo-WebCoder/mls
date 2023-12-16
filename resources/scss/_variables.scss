@@ -1,0 +1,82 @@
+// FONTS PATH
+$fa-font-path: '../fonts';
+
+$xs: 0;
+$sm: 540px;
+$md: 720px;
+$lg: 960px;
+$xl: 1140px;
+$xxl: 1366px;
+
+/*containers size*/
+$container-max-widths: (
+        sm: $sm,
+        md: $md,
+        lg: $lg,
+        xl: $xl,
+        xxl: $xxl
+);
+
+$grid-breakpoints: (
+        xs: $xs,
+        sm: $sm,
+        md: $md,
+        lg: $lg,
+        xl: $xl,
+        xxl: $xxl
+);
+
+/*colors*/
+$primary: #F7726B;
+$secondary: #82868b;
+$gray: #b3b3b3;
+$success: #28c76f;
+$danger: #191f23;
+$info: #00cfe8;
+$warning: #ff9f43;
+$light: #f6f6f6;
+$dark: #4b4b4b;
+
+$theme-colors: (
+  'primary': $primary,
+  'secondary': $secondary,
+  'gray': $gray,
+  'success': $success,
+  'danger': $danger,
+  'info': $info,
+  'warning': $warning,
+  'light': $light,
+  'dark': $dark,
+);
+
+// Sobrescrevendo as variáveis de cores do Bootstrap com as novas cores personalizadas
+$blue: $secondary;
+$indigo: $primary;
+$purple: $danger;
+$pink: $danger;
+$red: $danger;
+$orange: $secondary;
+$yellow: $success;
+$green: $success;
+$teal: $success;
+$cyan: $primary;
+$white: #fff;
+$gray: $gray;
+$gray-dark: #1e1e1e;
+$gray-100: #babfc7;
+$gray-200: #ededed;
+$gray-300: #dae1e7;
+$gray-400: #636363;
+$gray-500: #adb5bd;
+$gray-600: #b8c2cc;
+$gray-700: #4e5154;
+$gray-800: #1e1e1e;
+$gray-900: #2a2e30;
+$primary: $primary;
+$secondary: $secondary;
+$success: $success;
+$info: $secondary;
+$warning: $orange;
+$danger: $danger;
+$light: #f6f6f6;
+$dark: #4b4b4b;
