@@ -26,7 +26,7 @@ jQuery(function () {
   consultaCep();
   themeColor();
   switchChange();
-  
+
   AOS.init();
 
   $(window).ready(function () {
@@ -41,7 +41,7 @@ jQuery(function () {
     masks();
     consultaCep();
     themeColor();
-    
+
     AOS.init();
   });
 
@@ -529,6 +529,26 @@ jQuery(function () {
   }
 
   $(document).ready(function () {
+    $(".copy").on("click", function () {
+      var conteudo = $(".ql-editor p").text();
+
+      // Tenta copiar o conteúdo para a área de transferência usando o método writeText
+      navigator.clipboard
+        .writeText(conteudo)
+        .then(function () {
+          console.log("Copiado para a área de transferência!");
+        })
+        .catch(function (err) {
+          console.error("Erro ao copiar para a área de transferência:", err);
+        })
+        .finally(function () {
+          // Altera o texto do botão para 'Copiado!'
+          $(".copy").text("Copiado!");
+        });
+    });
+  });
+
+  $(document).ready(function () {
     // Quando um botão ou input do tipo submit for clicado
     $('button[type="submit"], input[type="submit"]').click(function () {
       // Armazena o elemento clicado em uma variável
@@ -615,14 +635,14 @@ jQuery(function () {
       function increaseQuantity() {
         let value = parseInt(quantityInput.val());
         const maxQuantity = parseInt(quantityInput.data("quantidade"));
-      
+
         // Verifica se há um limite máximo
         if (isNaN(maxQuantity) || value < maxQuantity) {
           quantityInput.val(value + 1);
           updateValor();
         }
-      }      
-      
+      }
+
       function decreaseQuantity() {
         let value = parseInt(quantityInput.val());
         if (value > minValue) {
@@ -783,7 +803,9 @@ jQuery(function () {
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-    const blob = new Blob(byteArrays, { type: contentType });
+    const blob = new Blob(byteArrays, {
+      type: contentType,
+    });
     return blob;
   }
 });

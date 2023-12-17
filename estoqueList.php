@@ -136,7 +136,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     $mensagem = '
     <div class="card">
         <div class="card-body d-flex align-items-center justify-content-between">
-            <h3 class="card-title m-0 fw-bolder">Gerar mensagem de divulgação</h3>
+            <h3 class="card-title m-0 fw-bolder"><i class="fa-regular fa-message"></i> Gerar mensagem de divulgação</h3>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                 Gerar
             </button>
@@ -189,10 +189,10 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     ';
 
     foreach ($formatado as $categoria => $produtos) {
-        $texto .= "\n*" . $categoria . "*\n";
+        $texto .= "\n \t *" . $categoria . "*\n";
 
         foreach ($produtos as $produto) {
-            $texto .= "\n \t" . $produto . "\n";
+            $texto .= "\n \t \t" . $produto . "\n";
         }
     }
 
@@ -224,7 +224,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
 
 $template = new Template("Listagem de Itens no Estoque");
 $template->addBreadcrumb("Dashboard", "index.php");
-$template->addContent($content);
+//$template->addContent($content);
 $template->addContent($table->writeHtml());
 $template->addContent($mensagem);
 $template->addContent($pagination->writeHtml());
@@ -241,7 +241,7 @@ $template->addContent('
                 ' . editorAreaField("Mensagem", $texto) . '
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Copiar</button>
+                <button type="button" class="btn btn-primary copy"><i class="fa-solid fa-copy"></i> Copiar</button>
             </div>
         </div>
     </div>
