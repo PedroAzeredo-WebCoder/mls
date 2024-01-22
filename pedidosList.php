@@ -1,11 +1,11 @@
 <?php
 require_once("./inc/common.php");
-checkAccess("estoqueList");
+checkAccess("pedidosList");
 
 $pagination = new Pagination();
 
 $table = new Table();
-$table->cardHeader(btn("Novo", "estoqueCad.php"));
+$table->cardHeader(btn("Novo", "pedidosCad.php"));
 $table->addHeader("Nome");
 $table->addHeader("Valor",             "text-center", "col-2", false);
 $table->addHeader("Valor Final",             "text-center", "col-2", false);
@@ -15,7 +15,7 @@ $table->addHeader("Status",     "text-center", "col-1", false);
 $table->addHeader("Ação",       "text-center", "col-1", false);
 
 $query = new sqlQuery();
-$query->addTable("cad_estoque");
+$query->addTable("cad_pedidos");
 $query->addcolumn("nome");
 $query->addcolumn("valor");
 $query->addcolumn("quantidade");
@@ -34,7 +34,7 @@ if (!empty($_COOKIE['filter_status'])) {
     }
 }
 
-$query->addOrder("valor", "ASC");
+$query->addOrder("id", "DESC");
 
 $resultCount = $conn->query($query->getSQL())->rowCount();
 
@@ -44,11 +44,7 @@ $pagination->setSQL($query->getCount());
 
 $table->setCount($resultCount);
 
-$porcentagem = 0.40;
-
 if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
-    $porcentagem = 0.40;
-
     foreach ($conn->query($query->getSQL()) as $row) {
         if ($row["status"] == 1) {
             $status = badge("Ativo", "success");
@@ -56,25 +52,27 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
             $status = badge("Inativo", "danger");
         }
 
-        $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
+        $valorFinal = $row["valor"] + $row["valor"] * 0.20;
 
-        $table->addCol(btn($row['nome'], ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
+
+        $table->addCol(btn($row['nome'], ["pedidosCad.php", ["cad_pedidos_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
         $table->addCol("R$ " . number_format($row["valor"], 2, ",", "."), "text-end");
         $table->addCol("R$ " . number_format($valorFinal, 2, ",", "."), "text-end");
         $table->addCol($row["quantidade"], "text-center");
         $table->addCol(badge($row['cad_categoria_id'], "primary"), "text-center");
         $table->addCol($status, "text-center");
         if ($row["status"] != 1) {
-            $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], "transparent", "btn-sm btn-outline-danger mx-1 edit") . btn("<i class='fa-solid fa-trash'></i>", ["estoqueCadSave.php", ["cad_estoque_id_delete" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
+            $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["pedidosCad.php", ["cad_pedidos_id" => $row["id"]]], "transparent", "btn-sm btn-outline-danger mx-1 edit") . btn("<i class='fa-solid fa-trash'></i>", ["pedidosCadSave.php", ["cad_pedidos_id_delete" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
         } else {
-            $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
+            $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["pedidosCad.php", ["cad_pedidos_id" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
         }
         $table->endRow();
     }
 
-    $despesa = getDbValue('SELECT SUM(valor * quantidade) FROM cad_estoque');
-    $receita = getDbValue('SELECT SUM(valor * quantidade * ' . $porcentagem . ') FROM cad_estoque');
+    $despesa = getDbValue('SELECT SUM(valor * quantidade) FROM cad_pedidos');
+    $receita = getDbValue('SELECT SUM(valor * quantidade * 1.2) FROM cad_pedidos');
     $lucro = $receita - $despesa;
+
 
     $content = '
     <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -147,7 +145,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     ';
 
     $resultados = new sqlQuery();
-    $resultados->addTable("cad_estoque e");
+    $resultados->addTable("cad_pedidos e");
     $resultados->addJoin("cad_categorias c", "e.cad_categoria_id = c.id");
     $resultados->addColumn("c.nome AS categoria");
     $resultados->addColumn("e.nome AS produto");
@@ -162,16 +160,15 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
         foreach ($conn->query($resultados->getSQL()) as $row) {
             $categoria = $row['categoria'];
             $produtoNome = $row['produto'];
-            $valorProduto = $row["valor"] + $row["valor"] * $porcentagem;
+            $valorProduto = $row['valor'] * 1.2;
 
+            // Determinar o emoji com base na categoria
             $emoji = '';
-            if (stripos($categoria, 'Energético') !== false) {
+            if (stripos($categoria, 'energético') !== false) {
                 $emoji = '🔋';
-            } elseif (stripos($categoria, 'Refrigerante') !== false) {
+            } elseif (stripos($categoria, 'refrigerante') !== false) {
                 $emoji = '🥤';
-            } elseif (stripos($categoria, 'Água') !== false) {
-                $emoji = '💧';
-            } elseif (stripos($categoria, 'Cerveja') !== false) {
+            } elseif (stripos($categoria, 'cerveja') !== false) {
                 $emoji = '🍺';
             }
 
@@ -186,49 +183,46 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     }
 
     $texto = '
-*🌙 Seja bem-vindo à ML´s Conveniência de Bebidas! 🌙*
+    *🌙 Seja bem-vindo à ML´s Conveniência de Bebidas! 🌙*
 
-Conheça nossas *ofertas especiais* para tornar suas noites ainda mais incríveis:
-__________________________________________________________
-';
+    Conheça nossas *ofertas especiais* para tornar suas noites ainda mais incríveis:
+    ';
 
     foreach ($formatado as $categoria => $produtos) {
-        $texto .= "\n*" . $categoria . "*\n";
+        $texto .= "\n \t *" . $categoria . "*\n";
 
         foreach ($produtos as $produto) {
-            $texto .= "\n &nbsp;" . $produto . "\n";
+            $texto .= "\n \t \t" . $produto . "\n";
         }
     }
 
     $texto .= '
-__________________________________________________________
+    🧊 Todas as bebidas entregues *geladas!*
 
-🧊 Todas as bebidas entregues *geladas!*
+    🚛 Entregamos durante as *madrugadas de terça a domingo!*
 
-🚛 Entregamos durante as *madrugadas de domingo a domingo!*
+    🏠 *Sem valor mínimo de pedido e sem taxa de entrega nos condomínios Salomoni!*
 
-🏠 *Sem valor mínimo de pedido e sem taxa de entrega nos condomínios Salomoni!*
+    💸 Pagamento somente em Pix ou com o valor exato do pedido.
 
-💸 Pagamento somente em Pix ou com o valor exato do pedido.
+    🚫 Não trabalhamos com troco!
 
-🚫 Não trabalhamos com troco!
+    *Chave Pix:* 04695293005
 
-*Chave Pix:* 04695293005
+    Faça seu pedido agora e aproveite a noite com as *melhores bebidas!* 🌙✨
 
-Faça seu pedido agora e aproveite a noite com as *melhores bebidas!* 🌙✨
+    *Entre em contato em:*
 
-*Entre em contato em:*
-
-https://wa.me/5551994442101
-ou
-https://wa.me/5551995534873
-';
+    https://wa.me/5551994442101
+    ou
+    https://wa.me/5551995534873
+    ';
 } else {
     $table->addCol("Nenhum registro encontrado!", "text-center", count($table->getHeaders()));
     $table->endRow();
 }
 
-$template = new Template("Listagem de Itens no Estoque");
+$template = new Template("Listagem de Itens no pedidos");
 $template->addBreadcrumb("Dashboard", "index.php");
 //$template->addContent($content);
 $template->addContent($table->writeHtml());
