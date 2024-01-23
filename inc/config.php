@@ -14,6 +14,7 @@ define("TITTLE", "ML's Conveniência de Bebidas");
 define("META", [
     "description" => "",
     "author" => "Web Coder",
+    "icon" => "./app-assets/images/favicon.ico",
 ]);
 
 /**
