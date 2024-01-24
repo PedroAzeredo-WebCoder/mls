@@ -6,19 +6,19 @@ $pagination = new Pagination();
 
 $table = new Table();
 $table->cardHeader(btn("Novo", "estoqueCad.php"));
+$table->addHeader("Quantidade",             "text-center", "col-1", false);
 $table->addHeader("Nome");
 $table->addHeader("Valor",             "text-center", "col-2", false);
 $table->addHeader("Valor Final",             "text-center", "col-2", false);
-$table->addHeader("Quantidade",             "text-center", "col-2", false);
-$table->addHeader("Categoria",             "text-center", "col-2", false);
+$table->addHeader("Categoria",             "text-center", "col-3", false);
 $table->addHeader("Status",     "text-center", "col-1", false);
 $table->addHeader("Ação",       "text-center", "col-1", false);
 
 $query = new sqlQuery();
 $query->addTable("cad_estoque");
+$query->addcolumn("quantidade");
 $query->addcolumn("nome");
 $query->addcolumn("valor");
-$query->addcolumn("quantidade");
 $query->addcolumn("(SELECT nome FROM cad_categorias WHERE id = cad_categoria_id) AS cad_categoria_id");
 $query->addcolumn("status");
 $query->addcolumn("id");
@@ -58,10 +58,10 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
 
         $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
 
+        $table->addCol($row["quantidade"], "text-center");
         $table->addCol(btn($row['nome'], ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
         $table->addCol("R$ " . number_format($row["valor"], 2, ",", "."), "text-end");
         $table->addCol("R$ " . number_format($valorFinal, 2, ",", "."), "text-end");
-        $table->addCol($row["quantidade"], "text-center");
         $table->addCol(badge($row['cad_categoria_id'], "primary"), "text-center");
         $table->addCol($status, "text-center");
         if ($row["status"] != 1) {
@@ -150,6 +150,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     $resultados->addTable("cad_estoque e");
     $resultados->addJoin("cad_categorias c", "e.cad_categoria_id = c.id");
     $resultados->addColumn("c.nome AS categoria");
+    $resultados->addColumn("c.icone AS emoji");
     $resultados->addColumn("e.nome AS produto");
     $resultados->addColumn("e.valor");
     $resultados->addColumn("e.quantidade");
@@ -163,17 +164,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
             $categoria = $row['categoria'];
             $produtoNome = $row['produto'];
             $valorProduto = $row["valor"] + $row["valor"] * $porcentagem;
-
-            $emoji = '';
-            if (stripos($categoria, 'Energético') !== false) {
-                $emoji = '🔋';
-            } elseif (stripos($categoria, 'Refrigerante') !== false) {
-                $emoji = '🥤';
-            } elseif (stripos($categoria, 'Água') !== false) {
-                $emoji = '💧';
-            } elseif (stripos($categoria, 'Cerveja') !== false) {
-                $emoji = '🍺';
-            }
+            $emoji = $row['emoji'];
 
             $produto_valor = $emoji . ' ' . $produtoNome . ' - *R$ ' . number_format($valorProduto, 2, ",", ".") . '*';
 
@@ -188,7 +179,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     $texto = '
 *🌙 Seja bem-vindo à ML´s Conveniência de Bebidas! 🌙*
 
-Conheça nossas *ofertas especiais* para tornar suas noites ainda mais incríveis:
+Serviço de entrega de bebinas na porta de sua casa!
 __________________________________________________________
 ';
 
@@ -222,6 +213,10 @@ Faça seu pedido agora e aproveite a noite com as *melhores bebidas!* 🌙✨
 https://wa.me/5551994442101
 ou
 https://wa.me/5551995534873
+
+Agora você pode fazer parte do nosso grupo de vendas acessando aqui 
+
+👉 Clique aqui para entrar no grupo: https://chat.whatsapp.com/K107qqNkf4zGkiu6V0yDSp
 ';
 } else {
     $table->addCol("Nenhum registro encontrado!", "text-center", count($table->getHeaders()));

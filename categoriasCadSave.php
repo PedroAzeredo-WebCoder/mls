@@ -18,10 +18,12 @@ try {
 		$tipo = 'success';
 	} else {
 		$cad_categoria_id 		= getParam("cad_categoria_id");
+		$f_icone                 = getParam("f_icone");
 		$f_nome                 = getParam("f_nome");
 		$f_ativo 				= getParam("f_ativo") == "on" ? "1" : "0";
 
 		$dados = array(
+			"icone"          				=> $f_icone,
 			"nome"          				=> $f_nome,
 			"status"         				=> $f_ativo,
 		);
@@ -31,6 +33,7 @@ try {
 
 			$sql_update = "
 				UPDATE cad_categorias SET
+					icone = :icone,
 					nome = :nome,
 					status = :status
 				WHERE
@@ -45,9 +48,11 @@ try {
 
 			$sql_insert = "
 				INSERT INTO cad_categorias (
+					icone,
 					nome,
 					status
 				) VALUES (
+					:icone, 
 					:nome, 
 					:status
 			)";

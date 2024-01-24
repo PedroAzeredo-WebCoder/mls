@@ -6,12 +6,14 @@ $pagination = new Pagination();
 
 $table = new Table();
 $table->cardHeader(btn("Novo", "categoriasCad.php"));
+$table->addHeader("Icone",     "text-center", "col-1", false);
 $table->addHeader("Nome");
 $table->addHeader("Status",     "text-center", "col-1", false);
 $table->addHeader("Ação",       "text-center", "col-1", false);
 
 $query = new sqlQuery();
 $query->addTable("cad_categorias");
+$query->addcolumn("icone");
 $query->addcolumn("nome");
 $query->addcolumn("status");
 $query->addcolumn("id");
@@ -27,7 +29,7 @@ if (!empty($_COOKIE['filter_status'])) {
     }
 }
 
-$query->addOrder("id", "DESC");
+$query->addOrder("nome", "ASC");
 
 $resultCount = $conn->query($query->getSQL())->rowCount();
 
@@ -45,6 +47,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
             $status = badge("Inativo", "danger");
         }
 
+        $table->addCol($row['icone'], "text-center");
         $table->addCol(btn($row['nome'], ["categoriasCad.php", ["cad_categoria_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
         $table->addCol($status, "text-center");
         if ($row["status"] != 1) {

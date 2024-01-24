@@ -12,12 +12,14 @@ if (!empty($cad_categoria_id)) {
     $query = new sqlQuery();
     $query->addTable("cad_categorias");
     $query->addcolumn("id");
+    $query->addcolumn("icone");
     $query->addcolumn("nome");
     $query->addcolumn("status");
     $query->addWhere("id", "=", $cad_categoria_id);
 
     foreach ($conn->query($query->getSQL()) as $row) {
         $f_nome = $row["nome"];
+        $f_icone = $row["icone"];
         $f_status = "";
 
         if ($row["status"] == 1) {
@@ -28,6 +30,7 @@ if (!empty($cad_categoria_id)) {
 
 $form = new Form("categoriasCadSave.php");
 $form->addField(hiddenField($cad_categoria_id, "cad_categoria_id"));
+$form->addField(textField("Icone", $f_icone, NUll, true));
 $form->addField(textField("Nome", $f_nome, NUll, true));
 $form->addField(checkboxField("Ativo | Inativo", $f_status, "f_ativo"));
 $form->addField(submitBtn("Salvar"));
