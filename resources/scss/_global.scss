@@ -70,13 +70,25 @@ iframe {
   }
 }
 
-// font-size
+// font size's px
 @for $i from 10 through 40 {
   .font-#{$i} {
-    font-size: calc($i / 16)rem;
+    font-size: #{$i}px !important;
 
     >* {
-      font-size: calc($i / 16)rem;
+      font-size: #{$i}px !important;
+    }
+  }
+}
+
+
+// font size's rem
+@for $i from 10 through 400 {
+  .font-#{$i}rem {
+    font-size: #{calc($i/16)}rem !important;
+
+    >* {
+      font-size: #{calc($i/16)}rem !important;
     }
   }
 }
@@ -204,6 +216,7 @@ iframe {
 
 .avatar-sm {
   width: 50px;
+  height: 50px;
   max-width: 50px;
   max-height: 50px;
   object-fit: cover;
@@ -226,7 +239,6 @@ iframe {
 }
 
 .card-img-top {
-  max-height: 140px;
   object-fit: cover;
 }
 

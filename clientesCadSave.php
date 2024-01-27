@@ -13,24 +13,21 @@ $cad_cliente_id_status = $e["cad_cliente_id_status"];
 try {
 	if (!empty($cad_cliente_id_delete)) {
 		$dados = array(
-			"nome"           => getDbValue("SELECT nome FROM cad_usuarios WHERE id =" . $cad_cliente_id_delete),
-			"documento"      => getDbValue("SELECT documento FROM cad_usuarios WHERE id =" . $cad_cliente_id_delete),
-			"email"          => getDbValue("SELECT email FROM cad_usuarios WHERE id =" . $cad_cliente_id_delete),
-			"celular"        => getDbValue("SELECT celular FROM cad_usuarios WHERE id =" . $cad_cliente_id_delete),
+			"nome"           => getDbValue("SELECT nome FROM cad_clientes WHERE id =" . $cad_cliente_id_delete),
+			"email"          => getDbValue("SELECT email FROM cad_clientes WHERE id =" . $cad_cliente_id_delete),
+			"celular"        => getDbValue("SELECT celular FROM cad_clientes WHERE id =" . $cad_cliente_id_delete),
 			"responsible" 	 => getUserInfo("id")
 		);
 
 		$sql_insert = "
                 INSERT INTO historico_usuarios (
 					nome,
-					documento,
 					email,
 					celular,
 					dt_delete,
 					responsible
                 ) VALUES (
 					:nome,
-					:documento,
 					:email,
 					:celular,
 					NOW(),
@@ -40,7 +37,7 @@ try {
 		$stmt = $conn->prepare($sql_insert);
 		$stmt->execute($dados);
 
-		$sql_delete = "DELETE FROM cad_usuarios WHERE id = :id";
+		$sql_delete = "DELETE FROM cad_clientes WHERE id = :id";
 		$stmt = $conn->prepare($sql_delete);
 		$stmt->execute(['id' => $cad_cliente_id_delete]);
 		$actionText = "Exclusão efetuada com sucesso";
@@ -60,11 +57,8 @@ try {
 		$cad_cliente_id 		= getParam("cad_cliente_id");
 		$f_imagem               = getFileParam("f_imagem");
 		$f_nome 				= getParam("f_nome");
-		$f_documento            = str_replace(array('.', '-', '/'), array('', '', ''), getParam("f_documento"));
 		$f_email                = strtolower(getParam("f_email"));
 		$f_celular             	= getParam("f_celular");
-		$cad_cargo_id           = getDbValue("SELECT id FROM cad_cargos WHERE nome LIKE '%Clientes%'");
-		$f_dt_nascimento        = getParam("f_dt_nascimento");
 		$f_cep                  = str_replace('-', '', getParam("f_cep"));
 		$f_estado               = getParam("f_uf");
 		$f_cidade               = getParam("f_localidade");
@@ -72,24 +66,14 @@ try {
 		$f_logradouro           = getParam("f_logradouro");
 		$f_numero               = getParam("f_numero");
 		$f_complemento          = getParam("f_complemento");
-		$f_parente_nome         = getParam("f_parente_nome");
-		$f_parente_parentesco   = getParam("f_parente_parentesco");
-		$f_parente_celular      = getParam("f_parente_celular");
-		$cad_origem_id      	= getParam("cad_origem_id");
-		$f_objetivos 			= getParam("f_objetivos");
-		$f_informacoes_saude    = getParam("f_informacoes_saude");
 		$f_senha                = getParam("f_senha");
 		$f_confirmar_senha      = getParam("f_confirmar_senha");
 		$f_ativo 				= getParam("f_ativo") == "on" ? "1" : "0";
-		$f_tipo 				= 1;
 
 		$dados = array(
 			"nome"           		=> $f_nome,
-			"documento"      		=> $f_documento,
 			"email"          		=> $f_email,
 			"celular"        		=> $f_celular,
-			"cad_cargo_id"   		=> $cad_cargo_id,
-			"dt_nascimento"  		=> $f_dt_nascimento,
 			"cep"            		=> $f_cep,
 			"estado"         		=> $f_estado,
 			"cidade"         		=> $f_cidade,
@@ -97,12 +81,7 @@ try {
 			"logradouro"     		=> $f_logradouro,
 			"numero"         		=> $f_numero,
 			"complemento"    		=> $f_complemento,
-			"parente_nome"   		=> $f_parente_nome,
-			"parente_parentesco"    => $f_parente_parentesco,
-			"parente_celular"    	=> $f_parente_celular,
-			"cad_origem_id"    		=> $cad_origem_id,
-			"status"         		=> $f_ativo,
-			"tipo"         	 		=> $f_tipo
+			"status"         		=> $f_ativo
 		);
 
 		validar_email($f_email);
@@ -124,13 +103,10 @@ try {
 				$dados["id"] = $cad_cliente_id;
 
 				$sql_update = "
-				UPDATE cad_usuarios SET
+				UPDATE cad_clientes SET
 					nome = :nome,
-					documento = :documento,
 					email = :email,
 					celular = :celular,
-					cad_cargo_id = :cad_cargo_id,
-					dt_nascimento = :dt_nascimento,
 					cep = :cep,
 					estado = :estado,
 					cidade = :cidade,
@@ -138,11 +114,6 @@ try {
 					bairro = :bairro,
 					numero = :numero,
 					complemento = :complemento,
-					parente_nome = :parente_nome,
-					parente_parentesco = :parente_parentesco,
-					parente_celular = :parente_celular,
-					cad_origem_id = :cad_origem_id,
-					tipo = :tipo,
 					dt_update = NOW()
 				";
 
@@ -159,21 +130,18 @@ try {
 				$lastInsertId = $cad_cliente_id;
 				$actionText = "Alteração efetuada com sucesso";
 			} else {
-				$dados["uniqid"] = uniqIdNew();
+				$dados["uid"] = uniqIdNew();
 
 				if (!empty($f_senha) && !empty($f_confirmar_senha)) {
 					$dados["senha"] = validar_senha($f_senha, $f_confirmar_senha);
 				}
 
 				$sql_insert = "
-                INSERT INTO cad_usuarios (
-                    uniqid, 
+                INSERT INTO cad_clientes (
+                    uid, 
 					nome,
-					documento,
 					email,
 					celular,
-					cad_cargo_id,
-					dt_nascimento,
 					cep,
 					estado,
 					cidade,
@@ -181,22 +149,14 @@ try {
 					logradouro,
 					numero,
 					complemento,
-					parente_nome,
-					parente_parentesco,
-					parente_celular,
-					cad_origem_id,
-					tipo,
 					senha,
 					dt_create,
                     status
                 ) VALUES (
-                    :uniqid,
+                    :uid,
 					:nome,
-					:documento,
 					:email,
 					:celular,
-					:cad_cargo_id,
-					:dt_nascimento,
 					:cep,
 					:estado,
 					:cidade,
@@ -204,11 +164,6 @@ try {
 					:bairro,
 					:numero,
 					:complemento,
-					:parente_nome,
-					:parente_parentesco,
-					:parente_celular,
-					:cad_origem_id,
-					:tipo,
 					:senha,
 					NOW(),
                     :status
@@ -232,59 +187,13 @@ try {
 			);
 
 			$sql_update = "
-				UPDATE cad_usuarios SET
+				UPDATE cad_clientes SET
 				imagem = :imagem
 				WHERE
 				id = :id
 			";
 
 			$conn->prepare($sql_update)->execute($dados);
-		}
-
-		if (!empty($f_objetivos)) {
-			$sql_delete_objetivos = "DELETE FROM usuarios_has_objetivos WHERE cad_usuario_id = :cad_usuario_id";
-			$stmt = $conn->prepare($sql_delete_objetivos);
-			$stmt->execute(['cad_usuario_id' => $lastInsertId]);
-
-			foreach ($f_objetivos as $objetivo) {
-				$dados_objetivos = array(
-					"cad_usuario_id" => $lastInsertId,
-					"cad_objetivo_id" => $objetivo,
-				);
-				$sql_insert_objetivos = "
-                    INSERT INTO usuarios_has_objetivos (
-                        cad_usuario_id,
-                        cad_objetivo_id
-                    ) VALUES (
-                        :cad_usuario_id,
-                        :cad_objetivo_id
-                    )";
-				$stmt = $conn->prepare($sql_insert_objetivos);
-				$stmt->execute($dados_objetivos);
-			}
-		}
-
-		if (!empty($f_informacoes_saude)) {
-			$sql_delete_informacoes_saude = "DELETE FROM usuarios_has_informacoes_saude WHERE cad_usuario_id = :cad_usuario_id";
-			$stmt = $conn->prepare($sql_delete_informacoes_saude);
-			$stmt->execute(['cad_usuario_id' => $lastInsertId]);
-
-			foreach ($f_informacoes_saude as $informacoes_saude) {
-				$dados_informacoes_saude = array(
-					"cad_usuario_id" => $lastInsertId,
-					"cad_informacao_saude_id" => $informacoes_saude,
-				);
-				$sql_insert_informacoes_saude = "
-                    INSERT INTO usuarios_has_informacoes_saude (
-                        cad_usuario_id,
-                        cad_informacao_saude_id
-                    ) VALUES (
-                        :cad_usuario_id,
-                        :cad_informacao_saude_id
-                    )";
-				$stmt = $conn->prepare($sql_insert_informacoes_saude);
-				$stmt->execute($dados_informacoes_saude);
-			}
 		}
 
 		$tipo = 'success';
