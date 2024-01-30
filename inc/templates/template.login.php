@@ -48,7 +48,7 @@
                     <div class="auth-inner my-2">
                         <div class='card mb-0' data-aos="zoom-in" data-aos-easing="linear" data-aos-duration="500">
                             <div class='card-body'>
-                                <img src="./app-assets/images/logo.svg" class="card-img-top w-50" alt="Logo [%title%]" title="[%title%]">
+                                <img src="./app-assets/images/logo.svg" class="mx-auto w-25" alt="Logo [%title%]" title="[%title%]">
                                 [%include_content%]
                             </div>
                         </div>

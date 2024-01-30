@@ -23,6 +23,9 @@ define("META", [
  */
 define("PAGINATION", "50");
 
+
+define('PORCENTAGEM', 0.40);
+
 /**
  * @package configuration
  * @subpackage database

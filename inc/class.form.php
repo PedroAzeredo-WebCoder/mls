@@ -672,7 +672,7 @@ function readField(string $placeholder = NULL, string $value = NULL): string
     $slug = slug($placeholder);
 
     if ($placeholder) {
-        $label = "<label for='" . $slug . "' class='form-label'>" . $placeholder . "</label>";
+        $label = "<label for='" . $slug . "' class='form-label fw-bolder'>" . $placeholder . "</label>";
     }
 
     $out = "

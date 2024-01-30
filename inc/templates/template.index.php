@@ -54,7 +54,7 @@
             <ul class="nav navbar-nav flex-row">
                 <li class="nav-item mx-auto d-flex align-items-center">
                     <a class="navbar-brand" href="index.php">
-                        <h2 class="brand-text my-3">
+                        <h2 class="brand-text w-50 mx-auto my-3">
                             <img src="./app-assets/images/logo.svg" class="card-img-top" alt="Logo [%title%]" title="[%title%]">
                         </h2>
                     </a>

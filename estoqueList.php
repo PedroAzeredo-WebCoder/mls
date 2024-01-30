@@ -44,10 +44,11 @@ $pagination->setSQL($query->getCount());
 
 $table->setCount($resultCount);
 
-$porcentagem = 0.40;
+$mensagem = '';
+$modal = '';
 
 if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
-    $porcentagem = 0.40;
+    $porcentagem = PORCENTAGEM;
 
     foreach ($conn->query($query->getSQL()) as $row) {
         if ($row["status"] == 1) {
@@ -179,8 +180,8 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     $texto = '
 *🌙 Seja bem-vindo à ML´s Conveniência de Bebidas! 🌙*
 
-Serviço de entrega de bebinas na porta de sua casa!
-__________________________________________________________
+Serviço de entrega de bebidas na porta de sua casa!
+_____________________________________________
 ';
 
     foreach ($formatado as $categoria => $produtos) {
@@ -192,7 +193,7 @@ __________________________________________________________
     }
 
     $texto .= '
-__________________________________________________________
+_______________________________________________
 
 🧊 Todas as bebidas entregues *geladas!*
 
@@ -218,6 +219,27 @@ Agora você pode fazer parte do nosso grupo de vendas acessando aqui
 
 👉 Clique aqui para entrar no grupo: https://chat.whatsapp.com/K107qqNkf4zGkiu6V0yDSp
 ';
+
+
+    $modal = '
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Visualização da Mensagem</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ' . editorAreaField("Mensagem", $texto) . '
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary copy"><i class="fa-solid fa-copy"></i> Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ';
 } else {
     $table->addCol("Nenhum registro encontrado!", "text-center", count($table->getHeaders()));
     $table->endRow();
@@ -229,23 +251,5 @@ $template->addBreadcrumb("Dashboard", "index.php");
 $template->addContent($table->writeHtml());
 $template->addContent($mensagem);
 $template->addContent($pagination->writeHtml());
-$template->addContent('
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Visualização da Mensagem</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ' . editorAreaField("Mensagem", $texto) . '
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary copy"><i class="fa-solid fa-copy"></i> Copiar</button>
-            </div>
-        </div>
-    </div>
-</div>
-');
+$template->addContent($modal);
 $template->writeHtml();

@@ -4242,11 +4242,6 @@ table td {
   flex-wrap: nowrap;
 }
 
-.loginPage {
-  background: url('../images/pages/bg.jp') center center no-repeat;
-  background-size: cover;
-}
-
 form .form-switch {
   display: flex;
   align-items: center;

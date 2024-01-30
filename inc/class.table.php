@@ -239,8 +239,8 @@ class Table
 
     private function createFirstRow()
     {
-        $this->column[] = "<tr data-aos='fade-left' data-aos-delay='" . $this->trOffset . "' data-aos-duration='500'>";
-        $this->trOffset += $this->rowDelay; // Aumenta o offset para a próxima linha com o valor do atraso
+        $this->column[] = "<tr data-aos='fade-left' data-aos-delay='" . $this->trOffset . "'  data-aos-easing='linear' data-aos-offset='0' data-aos-duration='500'>";
+        $this->trOffset += $this->rowDelay;
         $this->firstRowCreated = true;
     }
 }

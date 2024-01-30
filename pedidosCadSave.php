@@ -1,46 +1,36 @@
 <?php
 
 require_once("./inc/common.php");
-checkAccess("estoqueList");
+checkAccess("pedidosList");
 
 writeLogs("==== " . __FILE__ . " ====", "access");
 writeLogs(print_r($_POST, true), "access");
 
 $e = getParam("e", true);
-$cad_estoque_id_delete = $e["cad_estoque_id_delete"];
+$cad_pedido_id_delete = $e["cad_pedido_id_delete"];
 
 try {
-	if (!empty($cad_estoque_id_delete)) {
-		$sql_delete = "DELETE FROM cad_estoque WHERE id = :id";
+	if (!empty($cad_pedido_id_delete)) {
+		$sql_delete = "DELETE FROM cad_pedidos WHERE id = :id";
 		$stmt = $conn->prepare($sql_delete);
-		$stmt->execute(['id' => $cad_estoque_id_delete]);
+		$stmt->execute(['id' => $cad_pedido_id_delete]);
 		$actionText = "Exclusão efetuada com sucesso";
 		$tipo = 'success';
 	} else {
-		$cad_estoque_id 		= getParam("cad_estoque_id");
-		$f_nome                 = getParam("f_nome");
-		$f_valor 			    = floatval(str_replace(array('.', ',', 'R$'), array('', '.', ''), getParam("f_valor")));
-		$f_quantidade       	= getParam("f_quantidade");
-		$cad_categoria_id       		= getParam("f_categoria");
-		$f_ativo 				= getParam("f_ativo") == "on" ? "1" : "0";
+		$cad_pedido_id = getParam("cad_pedido_id");
 
-		$dados = array(
-			"nome"          				=> $f_nome,
-			"valor"    						=> $f_valor,
-			"quantidade"                	=> $f_quantidade,
-			"cad_categoria_id"              => $cad_categoria_id,
-			"status"         				=> $f_ativo,
-		);
+		if (!empty($cad_pedido_id)) {
 
-		if (!empty($cad_estoque_id)) {
-			$dados["id"] = $cad_estoque_id;
+			$f_ativo = getParam("f_ativo") == "on" ? "1" : "0";
+
+			$dados = array(
+				"status" => $f_ativo
+			);
+
+			$dados["id"] = $cad_pedido_id;
 
 			$sql_update = "
-				UPDATE cad_estoque SET
-					nome = :nome,
-					valor = :valor,
-					quantidade = :quantidade,
-					cad_categoria_id = :cad_categoria_id,
+				UPDATE cad_pedidos SET
 					status = :status
 				WHERE
 					id = :id
@@ -48,22 +38,22 @@ try {
 
 			$stmt = $conn->prepare($sql_update);
 			$stmt->execute($dados);
-			$lastInsertId = $cad_estoque_id;
+			$lastInsertId = $cad_pedido_id;
 			$actionText = "Alteração efetuada com sucesso";
 		} else {
 
 			$sql_insert = "
-				INSERT INTO cad_estoque (
-					nome,
-					valor,
+				INSERT INTO cad_pedidos (
+					cad_cliente_id,
+					cad_estoque_id,
 					quantidade,
-					cad_categoria_id,
+					valor,
 					status
 				) VALUES (
-					:nome, 
-					:valor,
+					:cad_cliente_id, 
+					:cad_estoque_id,
 					:quantidade,
-					:cad_categoria_id,
+					:valor,
 					:status
 			)";
 
@@ -76,16 +66,16 @@ try {
 		$tipo = 'success';
 	}
 } catch (PDOException $e) {
-	if (!empty($cad_estoque_id)) {
+	if (!empty($cad_pedido_id)) {
 		$actionText = "Erro ao alterar";
 	} else {
 		$actionText = "Erro ao cadastrar";
 	}
 
 	$extend = "text: 'Desculpe, ocorreu um erro";
-	if (!empty($cad_estoque_id) || !empty($cad_estoque_id_delete)) {
+	if (!empty($cad_pedido_id) || !empty($cad_pedido_id_delete)) {
 		$extend .= " na ";
-		if (!empty($cad_estoque_id)) {
+		if (!empty($cad_pedido_id)) {
 			$extend .= "alteração";
 		} else {
 			$extend .= "exclusão";
@@ -98,12 +88,12 @@ try {
 	$tipo = 'error';
 
 	writeLogs("==== " . __FILE__ . " ====", "error");
-	if (!empty($cad_estoque_id)) {
+	if (!empty($cad_pedido_id)) {
 		writeLogs("Action: UPDATE SQL", "error");
 		writeLogs(printSQL($sql_update, $dados, true), "error");
-	} else if (!empty($cad_estoque_id_delete)) {
+	} else if (!empty($cad_pedido_id_delete)) {
 		writeLogs("Action: DELETE SQL", "error");
-		writeLogs(printSQL($sql_delete, ['id' => $cad_estoque_id_delete], true), "error");
+		writeLogs(printSQL($sql_delete, ['id' => $cad_pedido_id_delete], true), "error");
 	} else {
 		writeLogs("Action: INSERT SQL", "error");
 		writeLogs(printSQL($sql_insert, $dados, true), "error");
@@ -111,7 +101,5 @@ try {
 	writeLogs(print_r($e, true), "error");
 }
 
-
-
 setAlert($actionText, $tipo, $extend);
-redirect("estoqueList.php");
+redirect("pedidosList.php");
