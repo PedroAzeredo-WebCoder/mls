@@ -50,7 +50,7 @@ $form->addField(hiddenField($cad_cliente_id, "cad_cliente_id"));
 $form->addField(fileField("Foto de Perfil", $f_imagem, "f_imagem"));
 $form->addField(textField("Nome", $f_nome, NUll, true));
 $form->addField(emailField("E-mail", $f_email, NUll, false, "^(?=.{1,256})(?=.{1,64}@)[^\s@]+@[^\s@]+\.[^\s@]{2,}$", NULL, "text-lowercase"));
-$form->addField(telField("Celular", $f_celular, NUll, false, "\(\d{2}\)\s?\d?(\d{4,5})-?\d{4}"));
+$form->addField(telField("Celular", $f_celular, NUll, true, "\(\d{2}\)\s?\d?(\d{4,5})-?\d{4}"));
 $form->addField(textField("CEP", $f_cep, NULL, true, "\d{5}-\d{3}"));
 $form->addField(textField("Estado", $f_estado, "f_uf", true, "[A-Z]{2}"));
 $form->addField(textField("Cidade", $f_cidade, "f_localidade", true));

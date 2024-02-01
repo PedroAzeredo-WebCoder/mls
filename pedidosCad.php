@@ -77,9 +77,11 @@ if (!empty($cad_pedido_id)) {
 
     $botaoNovoCliente = array();
 
-    $novoCliente = new Form("pedidosCadSave.php");
+    $novoCliente = new Form("clientesCadSave.php");
+    $novoCliente->addField(hiddenField("on", "f_ativo"));
     $novoCliente->addField(textField("Nome", $f_nome, NUll, true));
-    $novoCliente->addField(telField("Celular", $f_celular, NUll, false, "\(\d{2}\)\s?\d?(\d{4,5})-?\d{4}"));
+    $novoCliente->addField(emailField("E-mail", $f_email, NUll, false, "^(?=.{1,256})(?=.{1,64}@)[^\s@]+@[^\s@]+\.[^\s@]{2,}$", NULL, "text-lowercase"));
+    $novoCliente->addField(telField("Celular", $f_celular, NUll, true, "\(\d{2}\)\s?\d?(\d{4,5})-?\d{4}"));
     $novoCliente->addField(textField("CEP", $f_cep, NULL, true, "\d{5}-\d{3}"));
     $novoCliente->addField(textField("Estado", $f_estado, "f_uf", true, "[A-Z]{2}"));
     $novoCliente->addField(textField("Cidade", $f_cidade, "f_localidade", true));
@@ -87,6 +89,8 @@ if (!empty($cad_pedido_id)) {
     $novoCliente->addField(textField("Logradouro", $f_logradouro, NULL, true));
     $novoCliente->addField(textField("Número", $f_numero, NULL, true));
     $novoCliente->addField(textField("Complemento", $f_complemento));
+    $novoCliente->addField(passField("Senha", "123456#ML", NULL, true));
+    $novoCliente->addField(passField("Confirmar Senha", "123456#ML", NULL, true));
     $novoCliente->addField(submitBtn("Salvar"));
     $novoCliente->addField(submitBtn('Limpar', "ms-1 btn-danger", NULL, true));
 
