@@ -154,7 +154,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     $resultados->addColumn("e.valor");
     $resultados->addColumn("e.quantidade");
     $resultados->addWhere("e.status", "=", "'1'");
-    $resultados->addOrder("c.id, e.nome");
+    $resultados->addOrder("c.id, e.valor");
 
     $formatado = [];
 
@@ -162,22 +162,7 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
         foreach ($conn->query($resultados->getSQL()) as $row) {
             $categoria = $row['categoria'];
             $produtoNome = $row['produto'];
-            $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
-            $valorFinal = round($valorFinal, 2); // Arredonda para duas casas decimais
-    
-            $diff_99 = abs($valorFinal - floor($valorFinal) - 0.99);
-            $diff_00 = abs($valorFinal - floor($valorFinal) - 0);
-            $diff_5 = abs($valorFinal - floor($valorFinal) - 0.5);
-    
-            if ($diff_99 < $diff_00 && $diff_99 < $diff_5) {
-                $valorFinal = floor($valorFinal) + 0.99;
-            } elseif ($diff_00 < $diff_5) {
-                $valorFinal = floor($valorFinal);
-            } else {
-                $valorFinal = floor($valorFinal) + 0.5;
-            }
-    
-            $valorFinalFormatted = number_format($valorFinal, 2, ",", ".");
+            $valorFinalFormatted = number_format(arredondaValor($row['valor']), 2, ",", ".");
             $emoji = $row['emoji'];
 
             $produto_valor = $emoji . ' ' . $produtoNome . ' - *R$ ' . $valorFinalFormatted . '*';
