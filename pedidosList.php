@@ -8,7 +8,6 @@ $table = new Table();
 $table->cardHeader(btn("Novo", "pedidosCad.php"));
 $table->addHeader("Cliente");
 $table->addHeader("Produto",             "text-center", "col-3", false);
-$table->addHeader("Quantidade",             "text-center", "col-1", false);
 $table->addHeader("Valor",             "text-center", "col-1", false);
 $table->addHeader("Data",             "text-center", "col-1", false);
 $table->addHeader("Status Pagamento",     "text-center", "col-1", false);
@@ -16,18 +15,18 @@ $table->addHeader("Ação",       "text-center", "col-1", false);
 
 $query = new sqlQuery();
 $query->addTable("cad_pedidos");
+$query->addJoin("pedidos_has_produtos", "cad_pedidos.id = pedidos_has_produtos.cad_pedido_id", "LEFT");
 $query->addcolumn("(SELECT nome FROM cad_clientes WHERE id = cad_cliente_id) AS nome");
 $query->addcolumn("(SELECT celular FROM cad_clientes WHERE id = cad_cliente_id) AS celular");
 $query->addcolumn("(SELECT logradouro FROM cad_clientes WHERE id = cad_cliente_id) AS logradouro");
 $query->addcolumn("(SELECT numero FROM cad_clientes WHERE id = cad_cliente_id) AS numero");
 $query->addcolumn("(SELECT complemento FROM cad_clientes WHERE id = cad_cliente_id) AS complemento");
-$query->addcolumn("(SELECT nome FROM cad_estoque WHERE id = cad_estoque_id) AS produto");
-$query->addcolumn("(SELECT valor FROM cad_estoque WHERE id = cad_estoque_id) AS valor_produto");
-$query->addcolumn("quantidade");
-$query->addcolumn("valor");
-$query->addcolumn("DATE_FORMAT(dt_create, '%d/%m/%Y') AS data");
-$query->addcolumn("status");
-$query->addcolumn("id");
+$query->addcolumn("GROUP_CONCAT((SELECT nome FROM cad_estoque WHERE id = pedidos_has_produtos.cad_estoque_id ) SEPARATOR '|') AS produtos");
+$query->addcolumn("GROUP_CONCAT(pedidos_has_produtos.quantidade SEPARATOR '|') AS quantidades");
+$query->addcolumn("cad_pedidos.valor AS valor");
+$query->addcolumn("DATE_FORMAT(cad_pedidos.dt_create, '%d/%m/%Y') AS data");
+$query->addcolumn("cad_pedidos.status");
+$query->addcolumn("cad_pedidos.id");
 
 $newTableStatus = array(
     array("id" => "3", "name" => "Todos"),
@@ -42,13 +41,14 @@ $f_searchTableStatus = getParam("f_searchTableStatus");
 $defaultStatus = "3";
 
 if ($f_searchTableStatus != $defaultStatus && ($f_searchTableStatus || $f_searchTableStatus === "0")) {
-    $query->addWhere("status", "=", "'" . $f_searchTableStatus . "'");
+    $query->addWhere("cad_pedidos.status", "=", "'" . $f_searchTableStatus . "'");
 } else {
-    $query->addWhere("status", "!=", "'" . $defaultStatus . "'");
+    $query->addWhere("cad_pedidos.status", "!=", "'" . $defaultStatus . "'");
 }
 
+$query->addGroupBy("cad_pedidos.id");
+$query->addOrder("cad_pedidos.dt_create", "DESC");
 
-$query->addOrder("dt_create", "DESC");
 
 $resultCount = $conn->query($query->getSQL())->rowCount();
 
@@ -74,14 +74,23 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
             </div>
         ';
 
+        $produtos = explode("|", $row["produtos"]);
+        $quantidades = explode("|", $row["quantidades"]);
+        
+        $htmlContent = '';
+        foreach ($produtos as $index => $produto) {
+            $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : '';
+            $htmlContent .= '<div><p>' . $produto . ' - ' . $quantidade . '<br /></p></div>';
+        }
+        
         $table->addCol(btn($cliente, ["pedidosCad.php", ["cad_pedido_id" => $row["id"]]], "btn-link ps-0 fw-normal text-start edit"));
-        $table->addCol($row["produto"], "text-center");
-        $table->addCol($row["quantidade"], "text-center");
+        $table->addCol($htmlContent, "text-center");
         $table->addCol("R$ " . number_format($row['valor'], 2, ",", "."), "text-end");
         $table->addCol($row["data"], "text-center");
         $table->addCol($status, "text-center");
         $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["pedidosCad.php", ["cad_pedido_id" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
         $table->endRow();
+        
     }
 } else {
     $table->addCol("Nenhum registro encontrado!", "text-center", count($table->getHeaders()));

@@ -134,12 +134,32 @@ if (!empty($cad_pedido_id)) {
         </div>
     ';
 
+    $itens = '
+    <div class="py-2 itens-content">
+        <div class="position-relative itens-list">
+            <div class="row">
+                <div class="col-lg-9">
+                    ' . listField("Produto", $options_f_produtos, $cad_estoque_id, "cad_estoque_id[]", true) . '
+                </div>
+                <div class="col-lg-3">
+                    ' . numberField("Quantidade", $f_quantidade, "f_quantidade[]", true, 1, NULL, NULL, "d-block w-25") . '
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm badge position-absolute d-flex justify-content-center align-items-center start-100 translate-middle rounded-circle z-2 remove-item edit">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+        <div class="d-flex">
+            <button type="button" class="btn btn-primary text-dark btn-sm ms-auto add-item"><i class="ph ph-plus"></i> Add Item</button>
+        </div>
+    </div>
+    ';
+
     $form = new Form("pedidosCadSave.php");
     $form->setUpload(true);
     $form->addField(hiddenField($cad_pedido_id, "cad_pedido_id"));
     $form->addField($clienteField);
-    $form->addField(listField("Produto", $options_f_produtos, $cad_estoque_id, "cad_estoque_id", true));
-    $form->addField(numberField("Quantidade", $f_quantidade, NULL, true, 1));
+    $form->addField($itens);
     $form->addField(checkboxField("Pago | Pendente", $f_status, "f_ativo"));
     $form->addField(submitBtn("Salvar"));
     $form->addField(submitBtn('Limpar', "ms-1 btn-danger", NULL, true));

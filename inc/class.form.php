@@ -201,7 +201,7 @@ function numberField(string $placeholder = NULL, string $value = NULL, string $n
         <fieldset class='mb-1 input-group d-block' id='js_$slug'>
             $label
             <div class='row'>
-                <div class='col-lg-3 px-0'>
+                <div class='col px-0'>
                     <div class='d-flex gap-1'>
                         <button class='subtract-btn btn btn-light border' type='button'>
                             <i class='ph ph-minus'></i>

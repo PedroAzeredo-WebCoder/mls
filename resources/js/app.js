@@ -619,45 +619,52 @@ jQuery(function () {
   });
 
   $(function () {
-    $(".input-group").each(function () {
-      const group = $(this);
+    $(".itens-content").each(function () {
+      const content = $(this);
+      const group = content.find(".input-group");
       const quantityInput = group.find(".quantity-input");
       const minValue = parseInt(quantityInput.attr("min"));
 
-      function updateValor() {
-        let quantidade = parseInt(quantityInput.val());
+      function updateValor(input) {
+        let quantidade = parseInt(input.val());
         if (isNaN(quantidade) || quantidade < minValue) {
           quantidade = minValue;
-          quantityInput.val(minValue);
         }
+        input.val(quantidade);
       }
 
-      function increaseQuantity() {
-        let value = parseInt(quantityInput.val());
-        const maxQuantity = parseInt(quantityInput.data("quantidade"));
+      function increaseQuantity(input) {
+        let value = parseInt(input.val());
+        const maxQuantity = parseInt(input.data("quantidade"));
 
         // Verifica se há um limite máximo
         if (isNaN(maxQuantity) || value < maxQuantity) {
-          quantityInput.val(value + 1);
-          updateValor();
+          input.val(value + 1);
+          updateValor(input);
         }
       }
 
-      function decreaseQuantity() {
-        let value = parseInt(quantityInput.val());
+      function decreaseQuantity(input) {
+        let value = parseInt(input.val());
         if (value > minValue) {
-          quantityInput.val(value - 1);
-          updateValor();
+          input.val(value - 1);
+          updateValor(input);
         }
       }
 
-      group.find(".plus-btn").on("click", increaseQuantity);
+      // Adicionando eventos aos botões de aumento e redução
+      content.on("click", ".plus-btn", function () {
+        const input = $(this).siblings(".quantity-input");
+        increaseQuantity(input);
+      });
 
-      group.find(".subtract-btn").on("click", decreaseQuantity);
+      content.on("click", ".subtract-btn", function () {
+        const input = $(this).siblings(".quantity-input");
+        decreaseQuantity(input);
+      });
 
-      quantityInput.on("input", updateValor);
-
-      updateValor();
+      // Atualizando valor inicial
+      updateValor(quantityInput);
     });
   });
 
@@ -809,3 +816,42 @@ jQuery(function () {
     return blob;
   }
 });
+
+$(document).ready(function () {
+  // Função para atualizar a visibilidade do botão de remover
+  function updateRemoveButtonVisibility() {
+    $(".itens-content").each(function () {
+      var itemCount = $(this).find(".itens-list").length;
+      if (itemCount > 1) {
+        $(this).find(".remove-item").removeClass("d-none");
+      } else {
+        $(this).find(".remove-item").addClass("d-none");
+      }
+    });
+  }
+
+  // Oculta o botão de remover inicialmente se houver apenas um item
+  updateRemoveButtonVisibility();
+
+  // Adiciona um novo item quando o botão add-item for clicado
+  $(document).on("click", ".add-item", function () {
+    var previousItem = $(this)
+      .closest(".itens-content")
+      .find(".itens-list:last");
+    var newItem = previousItem.clone();
+    previousItem.after(newItem);
+    
+    // Atualiza a visibilidade do botão de remover
+    updateRemoveButtonVisibility();
+  });
+
+  // Remove o item quando o botão remove-item for clicado
+  $(document).on("click", ".remove-item", function () {
+    $(this).closest(".itens-list").remove();
+    
+    // Atualiza a visibilidade do botão de remover
+    updateRemoveButtonVisibility();
+  });
+});
+
+
