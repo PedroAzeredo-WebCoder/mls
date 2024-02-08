@@ -58,11 +58,26 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
         }
 
         $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
+        $valorFinal = round($valorFinal, 2); // Arredonda para duas casas decimais
+
+        $diff_99 = abs($valorFinal - floor($valorFinal) - 0.99);
+        $diff_00 = abs($valorFinal - floor($valorFinal) - 0);
+        $diff_5 = abs($valorFinal - floor($valorFinal) - 0.5);
+
+        if ($diff_99 < $diff_00 && $diff_99 < $diff_5) {
+            $valorFinal = floor($valorFinal) + 0.99;
+        } elseif ($diff_00 < $diff_5) {
+            $valorFinal = floor($valorFinal);
+        } else {
+            $valorFinal = floor($valorFinal) + 0.5;
+        }
+
+        $valorFinalFormatted = number_format($valorFinal, 2, ",", ".");
 
         $table->addCol($row["quantidade"], "text-center");
         $table->addCol(btn($row['nome'], ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
         $table->addCol("R$ " . number_format($row["valor"], 2, ",", "."), "text-end");
-        $table->addCol("R$ " . number_format($valorFinal, 2, ",", "."), "text-end");
+        $table->addCol("R$ " . $valorFinalFormatted, "text-end");
         $table->addCol(badge($row['cad_categoria_id'], "primary"), "text-center");
         $table->addCol($status, "text-center");
         if ($row["status"] != 1) {
@@ -164,10 +179,25 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
         foreach ($conn->query($resultados->getSQL()) as $row) {
             $categoria = $row['categoria'];
             $produtoNome = $row['produto'];
-            $valorProduto = $row["valor"] + $row["valor"] * $porcentagem;
+            $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
+            $valorFinal = round($valorFinal, 2); // Arredonda para duas casas decimais
+    
+            $diff_99 = abs($valorFinal - floor($valorFinal) - 0.99);
+            $diff_00 = abs($valorFinal - floor($valorFinal) - 0);
+            $diff_5 = abs($valorFinal - floor($valorFinal) - 0.5);
+    
+            if ($diff_99 < $diff_00 && $diff_99 < $diff_5) {
+                $valorFinal = floor($valorFinal) + 0.99;
+            } elseif ($diff_00 < $diff_5) {
+                $valorFinal = floor($valorFinal);
+            } else {
+                $valorFinal = floor($valorFinal) + 0.5;
+            }
+    
+            $valorFinalFormatted = number_format($valorFinal, 2, ",", ".");
             $emoji = $row['emoji'];
 
-            $produto_valor = $emoji . ' ' . $produtoNome . ' - *R$ ' . number_format($valorProduto, 2, ",", ".") . '*';
+            $produto_valor = $emoji . ' ' . $produtoNome . ' - *R$ ' . $valorFinalFormatted . '*';
 
             if (!isset($formatado[$categoria])) {
                 $formatado[$categoria] = [];
