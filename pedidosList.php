@@ -49,7 +49,6 @@ if ($f_searchTableStatus != $defaultStatus && ($f_searchTableStatus || $f_search
 $query->addGroupBy("cad_pedidos.id");
 $query->addOrder("cad_pedidos.dt_create", "DESC");
 
-
 $resultCount = $conn->query($query->getSQL())->rowCount();
 
 $query->setLimit(PAGINATION, $pagination->startLimit());
@@ -76,13 +75,13 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
 
         $produtos = explode("|", $row["produtos"]);
         $quantidades = explode("|", $row["quantidades"]);
-        
+
         $htmlContent = '';
         foreach ($produtos as $index => $produto) {
             $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : '';
             $htmlContent .= '<div><p>' . $produto . ' - ' . $quantidade . '<br /></p></div>';
         }
-        
+
         $table->addCol(btn($cliente, ["pedidosCad.php", ["cad_pedido_id" => $row["id"]]], "btn-link ps-0 fw-normal text-start edit"));
         $table->addCol($htmlContent, "text-center");
         $table->addCol("R$ " . number_format($row['valor'], 2, ",", "."), "text-end");
@@ -90,7 +89,6 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
         $table->addCol($status, "text-center");
         $table->addCol(btn("<i class='fa-regular fa-pen-to-square'></i>", ["pedidosCad.php", ["cad_pedido_id" => $row["id"]]], NULL, "btn-sm edit"), "text-center");
         $table->endRow();
-        
     }
 } else {
     $table->addCol("Nenhum registro encontrado!", "text-center", count($table->getHeaders()));

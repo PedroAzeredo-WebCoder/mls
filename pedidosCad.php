@@ -13,27 +13,48 @@ if (!empty($cad_pedido_id)) {
 
     $query = new sqlQuery();
     $query->addTable("cad_pedidos");
-    $query->addcolumn("id");
-    $query->addcolumn("cad_cliente_id");
-    $query->addcolumn("(SELECT nome FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS cad_cliente_id");
-    $query->addcolumn("(SELECT logradouro FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS logradouro");
-    $query->addcolumn("(SELECT numero FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS numero");
-    $query->addcolumn("(SELECT complemento FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS complemento");
-    $query->addcolumn("quantidade");
-    $query->addcolumn("cad_estoque_id");
+    $query->addJoin("pedidos_has_produtos", "cad_pedidos.id = pedidos_has_produtos.cad_pedido_id", "LEFT");
+    $query->addcolumn("(SELECT nome FROM cad_clientes WHERE id = cad_cliente_id) AS nome");
+    $query->addcolumn("(SELECT celular FROM cad_clientes WHERE id = cad_cliente_id) AS celular");
+    $query->addcolumn("(SELECT logradouro FROM cad_clientes WHERE id = cad_cliente_id) AS logradouro");
+    $query->addcolumn("(SELECT numero FROM cad_clientes WHERE id = cad_cliente_id) AS numero");
+    $query->addcolumn("(SELECT complemento FROM cad_clientes WHERE id = cad_cliente_id) AS complemento");
+    $query->addcolumn("GROUP_CONCAT((SELECT nome FROM cad_estoque WHERE id = pedidos_has_produtos.cad_estoque_id ) SEPARATOR '|') AS produtos");
+    $query->addcolumn("GROUP_CONCAT(pedidos_has_produtos.quantidade SEPARATOR '|') AS quantidades");
+    $query->addcolumn("cad_pedidos.valor AS valor");
+    $query->addcolumn("DATE_FORMAT(cad_pedidos.dt_create, '%d/%m/%Y') AS data");
+    $query->addcolumn("cad_pedidos.status");
+    $query->addcolumn("cad_pedidos.id");
     $query->addcolumn("status");
     $query->addWhere("id", "=", $cad_pedido_id);
 
     foreach ($conn->query($query->getSQL()) as $row) {
-        $cad_cliente_id = $row["cad_cliente_id"];
+        $cad_cliente_id = $row["nome"];
         $f_valor = number_format($row["valor"], 2, ",", ".");
-        $f_quantidade  = $row["quantidade"];
-        $cad_estoque_id = $row["cad_estoque_id"];
         $f_status = "";
 
         if ($row["status"] == 1) {
             $f_status = "checked";
         }
+
+        $produtos = explode("|", $row["produtos"]);
+        $quantidades = explode("|", $row["quantidades"]);
+
+        $htmlContent = '<ul class="list-group list-group-flush my-2 w-25"><small><strong>Produtos:</strong></small>';
+        foreach ($produtos as $index => $produto) {
+            $quantidade = isset($quantidades[$index]) ? $quantidades[$index] : '';
+            $htmlContent .= '
+                <li class="list-group-item d-flex justify-content-between align-items-center ps-0">
+                    ' . $produto . '
+                    <span class="badge bg-primary rounded-pill">' . $quantidade . '</span>
+                </li>
+            ';
+        }
+
+        $htmlContent .= '</ul>';
+
+        $endereco = urlencode($row['logradouro'] . ', ' . $row['numero'] . ' - ' . $row['complemento']);
+        $googleMapsLink = '<a href="https://www.google.com/maps/search/?api=1&query=' . $endereco . '" target="_blank" rel="noopener noreferrer">' . $row['logradouro'] . ', ' . $row['numero'] . ' - ' . $row['complemento'] . '</a>';
     }
 
     $form = new Form("pedidosCadSave.php");
@@ -41,9 +62,8 @@ if (!empty($cad_pedido_id)) {
     $form->addField('<h1>Pedido:  #' . $cad_pedido_id . '</h1><hr>');
     $form->addField(hiddenField($cad_pedido_id, "cad_pedido_id"));
     $form->addField(readField("Cliente:", $cad_cliente_id));
-    $form->addField(readField("Endereço de Entrega:", $row['logradouro'] . ', ' . $row['numero'] . ' - ' . $row['complemento']));
-    $form->addField(readField("Produto:", getDbValue("SELECT nome FROM cad_estoque WHERE id =" . $cad_estoque_id)));
-    $form->addField(readField("Quantidade:", $f_quantidade));
+    $form->addField(readField("Endereço de Entrega:", $googleMapsLink));
+    $form->addField($htmlContent);
     $form->addField(checkboxField("Pago | Pendente", $f_status, "f_ativo"));
     $form->addField(submitBtn("Salvar"));
 } else {
