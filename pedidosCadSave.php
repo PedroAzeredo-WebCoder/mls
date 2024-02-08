@@ -26,11 +26,11 @@ try {
             $f_ativo = getParam("f_ativo") == "on" ? "1" : "0";
             $dados = array("status" => $f_ativo, "id" => $cad_pedido_id);
 
-            $sql_update = "UPDATE cad_pedidos SET status = :status WHERE id = :id";
+            $sql_update = "UPDATE cad_pedidos SET status = :status, dt_update = NOW() WHERE id = :id";
             $stmt = $conn->prepare($sql_update);
             $stmt->execute($dados);
             $lastInsertId = $cad_pedido_id;
-			$tipo = 'success';
+            $tipo = 'success';
             $actionText = "Alteração efetuada com sucesso";
         } else {
             // Inserção de novo pedido
@@ -75,7 +75,7 @@ try {
                 $stmt = $conn->prepare($sql_insert);
                 $stmt->execute($dados);
                 $lastInsertId = $conn->lastInsertId();
-				$tipo = 'success';
+                $tipo = 'success';
                 $actionText = "Cadastro efetuado com sucesso";
 
                 // Atualizar quantidade no estoque
