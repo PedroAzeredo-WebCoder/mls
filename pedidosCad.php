@@ -16,6 +16,9 @@ if (!empty($cad_pedido_id)) {
     $query->addcolumn("id");
     $query->addcolumn("cad_cliente_id");
     $query->addcolumn("(SELECT nome FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS cad_cliente_id");
+    $query->addcolumn("(SELECT logradouro FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS logradouro");
+    $query->addcolumn("(SELECT numero FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS numero");
+    $query->addcolumn("(SELECT complemento FROM cad_clientes WHERE id = cad_pedidos.cad_cliente_id) AS complemento");
     $query->addcolumn("quantidade");
     $query->addcolumn("cad_estoque_id");
     $query->addcolumn("status");
@@ -38,6 +41,7 @@ if (!empty($cad_pedido_id)) {
     $form->addField('<h1>Pedido:  #' . $cad_pedido_id . '</h1><hr>');
     $form->addField(hiddenField($cad_pedido_id, "cad_pedido_id"));
     $form->addField(readField("Cliente:", $cad_cliente_id));
+    $form->addField(readField("Endereço de Entrega:", $row['logradouro'] . ', ' . $row['numero'] . ' - ' . $row['complemento']));
     $form->addField(readField("Produto:", getDbValue("SELECT nome FROM cad_estoque WHERE id =" . $cad_estoque_id)));
     $form->addField(readField("Quantidade:", $f_quantidade));
     $form->addField(checkboxField("Pago | Pendente", $f_status, "f_ativo"));
