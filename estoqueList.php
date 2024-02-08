@@ -9,7 +9,7 @@ $table->cardHeader(btn("Novo", "estoqueCad.php"));
 $table->addHeader("Quantidade",             "text-center", "col-1", false);
 $table->addHeader("Nome");
 $table->addHeader("Valor",             "text-center", "col-2", false);
-$table->addHeader("Valor Final",             "text-center", "col-2", false);
+$table->addHeader("Valor Cobrado",             "text-center", "col-2", false);
 $table->addHeader("Categoria",             "text-center", "col-3", false);
 $table->addHeader("Status",     "text-center", "col-1", false);
 $table->addHeader("Ação",       "text-center", "col-1", false);
@@ -19,6 +19,7 @@ $query->addTable("cad_estoque");
 $query->addcolumn("quantidade");
 $query->addcolumn("nome");
 $query->addcolumn("valor");
+$query->addcolumn("valor_cobrado");
 $query->addcolumn("(SELECT nome FROM cad_categorias WHERE id = cad_categoria_id) AS cad_categoria_id");
 $query->addcolumn("status");
 $query->addcolumn("id");
@@ -34,7 +35,8 @@ if (!empty($_COOKIE['filter_status'])) {
     }
 }
 
-$query->addOrder("valor", "ASC");
+$query->addOrder("cad_categoria_id", "ASC");
+$query->addOrder("valor_cobrado", "ASC");
 
 $resultCount = $conn->query($query->getSQL())->rowCount();
 
@@ -48,7 +50,6 @@ $mensagem = '';
 $modal = '';
 
 if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
-    $porcentagem = PORCENTAGEM;
 
     foreach ($conn->query($query->getSQL()) as $row) {
         if ($row["status"] == 1) {
@@ -57,27 +58,10 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
             $status = badge("Inativo", "danger");
         }
 
-        $valorFinal = $row["valor"] + $row["valor"] * $porcentagem;
-        $valorFinal = round($valorFinal, 2); // Arredonda para duas casas decimais
-
-        $diff_99 = abs($valorFinal - floor($valorFinal) - 0.99);
-        $diff_00 = abs($valorFinal - floor($valorFinal) - 0);
-        $diff_5 = abs($valorFinal - floor($valorFinal) - 0.5);
-
-        if ($diff_99 < $diff_00 && $diff_99 < $diff_5) {
-            $valorFinal = floor($valorFinal) + 0.99;
-        } elseif ($diff_00 < $diff_5) {
-            $valorFinal = floor($valorFinal);
-        } else {
-            $valorFinal = floor($valorFinal) + 0.5;
-        }
-
-        $valorFinalFormatted = number_format($valorFinal, 2, ",", ".");
-
         $table->addCol($row["quantidade"], "text-center");
         $table->addCol(btn($row['nome'], ["estoqueCad.php", ["cad_estoque_id" => $row["id"]]], "btn-link ps-0 fw-normal edit"));
         $table->addCol("R$ " . number_format($row["valor"], 2, ",", "."), "text-end");
-        $table->addCol("R$ " . $valorFinalFormatted, "text-end");
+        $table->addCol("R$ " . number_format($row["valor_cobrado"], 2, ",", "."), "text-end");
         $table->addCol(badge($row['cad_categoria_id'], "primary"), "text-center");
         $table->addCol($status, "text-center");
         if ($row["status"] != 1) {
@@ -89,7 +73,6 @@ if ($conn->query($query->getSQL()) && getDbValue($query->getCount()) != 0) {
     }
 
     $despesa = getDbValue('SELECT SUM(valor * quantidade) FROM cad_estoque');
-    $receita = getDbValue('SELECT SUM(valor * quantidade * ' . $porcentagem . ') FROM cad_estoque');
     $lucro = $receita - $despesa;
 
     $content = '

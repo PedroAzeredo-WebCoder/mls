@@ -597,3 +597,25 @@ function sendResetEmail($email, $token)
 		return true;
 	}
 }
+
+function arredondaValor($valor)
+{
+
+	$porcentagem = PORCENTAGEM;
+	$valorFinal = $valor + $valor * $porcentagem;
+	$valorFinal = round($valorFinal, 2);
+
+	$diff_99 = abs($valorFinal - floor($valorFinal) - 0.99);
+	$diff_00 = abs($valorFinal - floor($valorFinal) - 0);
+	$diff_5 = abs($valorFinal - floor($valorFinal) - 0.5);
+
+	if ($diff_99 < $diff_00 && $diff_99 < $diff_5) {
+		$valorFinal = floor($valorFinal) + 0.99;
+	} elseif ($diff_00 < $diff_5) {
+		$valorFinal = floor($valorFinal);
+	} else {
+		$valorFinal = floor($valorFinal) + 0.5;
+	}
+
+	return floatval(str_replace(',', '.', $valorFinal));
+}

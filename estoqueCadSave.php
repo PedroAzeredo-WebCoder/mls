@@ -10,6 +10,7 @@ $e = getParam("e", true);
 $cad_estoque_id_delete = $e["cad_estoque_id_delete"];
 
 try {
+
 	if (!empty($cad_estoque_id_delete)) {
 		$sql_delete = "DELETE FROM cad_estoque WHERE id = :id";
 		$stmt = $conn->prepare($sql_delete);
@@ -20,13 +21,15 @@ try {
 		$cad_estoque_id 		= getParam("cad_estoque_id");
 		$f_nome                 = getParam("f_nome");
 		$f_valor 			    = floatval(str_replace(array('.', ',', 'R$'), array('', '.', ''), getParam("f_valor")));
+		$f_valor_cobrado		= arredondaValor($f_valor);
 		$f_quantidade       	= getParam("f_quantidade");
-		$cad_categoria_id       		= getParam("f_categoria");
+		$cad_categoria_id       = getParam("f_categoria");
 		$f_ativo 				= getParam("f_ativo") == "on" ? "1" : "0";
 
 		$dados = array(
 			"nome"          				=> $f_nome,
 			"valor"    						=> $f_valor,
+			"valor_cobrado"    				=> $f_valor_cobrado,
 			"quantidade"                	=> $f_quantidade,
 			"cad_categoria_id"              => $cad_categoria_id,
 			"status"         				=> $f_ativo,
@@ -39,6 +42,7 @@ try {
 				UPDATE cad_estoque SET
 					nome = :nome,
 					valor = :valor,
+					valor_cobrado = :valor_cobrado,
 					quantidade = :quantidade,
 					cad_categoria_id = :cad_categoria_id,
 					status = :status
@@ -56,12 +60,14 @@ try {
 				INSERT INTO cad_estoque (
 					nome,
 					valor,
+					valor_cobrado,
 					quantidade,
 					cad_categoria_id,
 					status
 				) VALUES (
 					:nome, 
 					:valor,
+					:valor_cobrado,
 					:quantidade,
 					:cad_categoria_id,
 					:status
@@ -71,6 +77,27 @@ try {
 			$stmt->execute($dados);
 			$lastInsertId = $conn->lastInsertId();
 			$actionText = "Cadastro efetuado com sucesso";
+		}
+
+		if (!empty($lastInsertId)) {
+			$dados = array(
+				"produto"           => getDbValue("SELECT nome FROM cad_estoque WHERE id =" . $lastInsertId),
+				"valor"          => getDbValue("SELECT valor FROM cad_estoque WHERE id =" . $lastInsertId)
+			);
+
+			$sql_insert = "
+					INSERT INTO historico_estoque (
+						produto,
+						valor,
+						dt_create
+					) VALUES (
+						:produto,
+						:valor,
+						NOW()
+					)";
+
+			$stmt = $conn->prepare($sql_insert);
+			$stmt->execute($dados);
 		}
 
 		$tipo = 'success';
