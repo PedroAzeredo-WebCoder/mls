@@ -89,7 +89,7 @@ if (!empty($cad_pedido_id)) {
     $produtos->addcolumn("id");
     $produtos->addcolumn("nome");
     $produtos->addWhere("status", "=", "1");
-    $produtos->addOrder("valor", "ASC");
+    $produtos->addOrder("nome", "ASC");
 
     if ($conn->query($produtos->getSQL()) && getDbValue($produtos->getCount()) != 0) {
         foreach ($conn->query($produtos->getSQL()) as $row) {
