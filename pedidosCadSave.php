@@ -87,13 +87,25 @@ try {
                         $stmt = $conn->prepare($sql_insert_produtos);
                         $stmt->execute($dados_produtos);
 
+                        $sql_quantidade = "SELECT quantidade FROM cad_estoque WHERE id = :cad_estoque_id";
+                        $stmt_quantidade = $conn->prepare($sql_quantidade);
+                        $stmt_quantidade->execute(['cad_estoque_id' => $cad_estoque_id]);
+                        $quantidade_disponivel = $stmt_quantidade->fetchColumn();
+
+                        if ($quantidade_disponivel !== false) {
+                            $nova_quantidade = $quantidade_disponivel - $quantidade;
+                            $status = ($nova_quantidade == 0) ? '0' : '1';
+
+                            $stmt_update = $conn->prepare("UPDATE cad_estoque SET quantidade = :nova_quantidade, status = :status WHERE id = :cad_estoque_id");
+                            $stmt_update->execute(array("nova_quantidade" => $nova_quantidade, "status" => $status, "cad_estoque_id" => $cad_estoque_id));
+                        }
+
                         $sql_valor_item = "SELECT valor_cobrado FROM cad_estoque WHERE id = :cad_estoque_id";
                         $stmt_valor_item = $conn->prepare($sql_valor_item);
                         $stmt_valor_item->execute(['cad_estoque_id' => $cad_estoque_id]);
                         $valor_item = $stmt_valor_item->fetchColumn();
 
                         $valor_total_pedido += $valor_item * $quantidade;
-
                     }
                 }
 
